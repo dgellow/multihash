@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.9)
 project(Multihash VERSION 0.0.0
 				  DESCRIPTION "C++ multihash library"
 				  HOMEPAGE_URL "http://github.com/dgellow/multihash"
