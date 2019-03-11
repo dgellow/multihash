@@ -1,11 +1,12 @@
 language: cpp
 
-compiler:
-  - clang
-  - gcc
-os:
-  - linux
-  - osx
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode9
+      compiler: clang
+      env:
+        - COMPILER="clang++" SANITIZE=false
 
 script:
   - mkdir -p build
