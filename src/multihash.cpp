@@ -9,41 +9,36 @@ Multihash::Multihash(hash code, std::string s) : code(code) {
 	this->length = this->digest.size();
 }
 
-std::tuple<UInt, Error> uvarint(Bytes &buf) {
+std::tuple<UInt, OptError> uvarint(Bytes &buf) {
 	// TODO: not implemented yet
 	return {0, std::nullopt};
 }
 
-std::tuple<OptioMultihashRef, Error> decode(Bytes &buf) {
-	if (buf.size() < 2) {
+ResMultihash decode(Bytes &buf) {
+	if (buf.size() < 2)
 		return {std::nullopt, errTooShort};
-	}
 
 	UInt code{};
 	UInt length{};
-	Error err{};
+	OptError err{};
 
 	std::tie(code, err) = uvarint(buf);
-	if (err) {
+	if (err)
 		return {std::nullopt, err};
-	}
 
 	std::tie(length, err) = uvarint(buf);
-	if (err) {
+	if (err)
 		return {std::nullopt, err};
-	}
 
-	if (buf.size() != length) {
+	if (buf.size() != length)
 		return {std::nullopt, errInconsistantLength};
-	}
 
 	auto hashSearch = hash_code.find(code);
-	if (hashSearch == hash_code.end()) {
+	if (hashSearch == hash_code.end())
 		return {std::nullopt, errUnknownHashCode};
-	}
 
-	auto m = Multihash{hashSearch->second, length, buf};
-	return {std::ref(m), std::nullopt};
+	Multihash m{hashSearch->second, length, buf};
+	return {m, std::nullopt};
 }
 
 } // namespace multihash

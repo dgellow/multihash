@@ -11,7 +11,8 @@ namespace multihash {
 using UInt = unsigned int;
 using Bytes = std::vector<char>;
 
-using Error = std::optional<std::string>;
+using Error = std::string;
+using OptError = std::optional<Error>;
 
 const Error errUnknownHashCode{"unknown hash function code"};
 const Error errTooShort{"multihash too short, must be >= 2 bytes"};
@@ -118,11 +119,12 @@ private:
 	Bytes digest;
 };
 
-using OptioMultihashRef = std::optional<std::reference_wrapper<Multihash>>;
+using OptMultihash = std::optional<Multihash>;
+using ResMultihash = std::tuple<OptMultihash, OptError>;
 
 void encode(Bytes &buf, hash code);
 
-std::tuple<OptioMultihashRef, Error> decode(std::vector<char> buf);
+ResMultihash decode(std::vector<char> buf);
 
 bool validate(u_int64_t code) {
 	auto search = hash_code.find(code);
