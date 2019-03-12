@@ -107,7 +107,6 @@ const std::map<std::string, hash> hash_name = {
 class Multihash {
 public:
 	Multihash(hash code, size_t length, Bytes digest) : code(code), length(length), digest(digest) {}
-	Multihash(hash code, std::string s);
 
 	const UInt &size() { return length; }
 	const hash &getCode() { return code; }
@@ -125,6 +124,7 @@ using ResMultihash = std::tuple<OptMultihash, OptError>;
 void encode(Bytes &buf, hash code);
 
 ResMultihash decode(std::vector<char> buf);
+ResMultihash decode(std::string str);
 
 bool validate(u_int64_t code) {
 	auto search = hash_code.find(code);

@@ -3,18 +3,15 @@
 
 namespace multihash {
 
-Multihash::Multihash(hash code, std::string s) : code(code) {
-	// TODO: not implemented yet
-	this->digest = {};
-	this->length = this->digest.size();
-}
-
+// Decodes a uint64 from buffer and returns that value and an optional error
 std::tuple<UInt, OptError> uvarint(Bytes &buf) {
 	// TODO: not implemented yet
 	return {0, std::nullopt};
 }
 
-ResMultihash decode(Bytes &buf) {
+// Decodes a buffer and constructs a Multihash.
+// May return errors errTooShort, errInconsistantLength, errUnknownHashCode.
+ResMultihash decode(Bytes buf) {
 	if (buf.size() < 2)
 		return {std::nullopt, errTooShort};
 
@@ -39,6 +36,13 @@ ResMultihash decode(Bytes &buf) {
 
 	Multihash m{hashSearch->second, length, buf};
 	return {m, std::nullopt};
+}
+
+// Constructs a Multihash from a string.
+// May return same errors as decode(Bytes &buf).
+ResMultihash decode(std::string str) {
+	Bytes buf{str.begin(), str.end()};
+	return decode(buf);
 }
 
 } // namespace multihash
