@@ -17,6 +17,8 @@ using OptError = std::optional<Error>;
 const Error errUnknownHashCode{"unknown hash function code"};
 const Error errTooShort{"multihash too short, must be >= 2 bytes"};
 const Error errTooLong{"multihash too long, must be < 129 bytes"};
+const Error errVarIntBufferTooShort{"uvarint: buffer too small"};
+const Error errVarintTooLong{"uvarint: varint too big (max 64bit)"};
 const Error errInconsistantLength{"multihash length inconsistent"};
 const Error errInvalidInput{"invalid input"};
 
@@ -106,6 +108,7 @@ const std::map<std::string, hash> hash_name = {
 
 class Multihash {
 public:
+	Multihash() {}
 	Multihash(hash code, size_t length, Bytes digest) : code(code), length(length), digest(digest) {}
 
 	const UInt &size() { return length; }
@@ -123,8 +126,10 @@ using ResMultihash = std::tuple<OptMultihash, OptError>;
 
 void encode(Bytes &buf, hash code);
 
-ResMultihash decode(std::vector<char> buf);
+ResMultihash decode(Bytes &buf);
 ResMultihash decode(std::string str);
+OptError decode(Bytes &buf, Multihash &m);
+OptError decode(std::string str, Multihash &m);
 
 bool validate(u_int64_t code) {
 	auto search = hash_code.find(code);
