@@ -13,5 +13,5 @@ script:
   - cd build
   - cmake ..
   - make
-  - ctest --verbose
+  - ./*_test
   - make install

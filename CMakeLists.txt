@@ -51,14 +51,14 @@ target_compile_options(multihashlib PRIVATE -Werror)
 # —————————————————————————————————————————
 # create target for test and enable testing
 # —————————————————————————————————————————
-add_executable(multihashtest tests/multihash_test.cpp)
+add_executable(multihash_test tests/multihash_test.cpp)
 
-target_link_libraries(multihashtest multihashlib gtest_main)
-target_compile_features(multihashtest PRIVATE cxx_std_17)
-target_compile_options(multihashtest PRIVATE -Werror)
+target_link_libraries(multihash_test multihashlib gtest_main)
+target_compile_features(multihash_test PRIVATE cxx_std_17)
+target_compile_options(multihash_test PRIVATE -Werror)
 
 enable_testing()
-add_test(multihashlib_test multihashtest)
+add_test(test multihash_test)
 
 # —————————————————————————
 # installation instructions
