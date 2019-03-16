@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <map>
 #include <optional>
 #include <string>
@@ -111,6 +112,12 @@ private:
 	UInt length;
 	Bytes digest;
 };
+
+inline std::ostream &operator<<(std::ostream &stream, const Multihash &m) {
+	stream << "Multihash{"
+	       << " hash: " << int(m.getHash()) << ", code: " << m.getCode() << ", size: " << m.size();
+	return stream;
+}
 
 using OptMultihash = std::optional<Multihash>;
 using ResMultihash = std::tuple<OptMultihash, OptError>;
