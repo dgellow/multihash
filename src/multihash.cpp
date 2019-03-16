@@ -100,8 +100,7 @@ OptError decode(Bytes &buf, Multihash &m) {
 		return errInconsistantLength;
 	}
 
-	auto hashSearch = hash_by_code.find(code);
-	if (hashSearch == hash_by_code.end()) {
+	if (!validate(code)) {
 		return errUnknownHashCode;
 	}
 

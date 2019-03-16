@@ -130,7 +130,7 @@ OptError decode(std::string str, Multihash &m);
 
 inline bool validate(UInt code) {
 	auto search = hash_by_code.find(code);
-	return search == hash_by_code.end();
+	return search != hash_by_code.end();
 }
 
 } // namespace multihash
