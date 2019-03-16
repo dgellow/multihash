@@ -144,4 +144,32 @@ TEST(Decode, MismatchLengthAndDigestLength) {
 	ASSERT_EQ(multihash::errInconsistantLength, optErr.value());
 }
 
+TEST(Encode, FromString) {
+	std::string hash = "8a173fd3e32c0fa78b90fe42d305f202244e2739";
+	multihash::Bytes expected{
+	    0x11, 0x14, 0x8a, 0x17, 0x3f, 0xd3, 0xe3, 0x2c, 0x0f, 0xa7, 0x8b,
+	    0x90, 0xfe, 0x42, 0xd3, 0x05, 0xf2, 0x02, 0x24, 0x4e, 0x27, 0x39,
+	};
+
+	auto [optEncoded, optErr] = multihash::encode(hash, 0x11);
+	ASSERT_FALSE(optErr) << "Expected no error. error: '" << optErr.value() << "'";
+	ASSERT_TRUE(optEncoded) << "An encoded multihash should be returned";
+
+	EXPECT_EQ(expected, optEncoded.value());
+}
+
+TEST(Encode, FromStringUsingOutParam) {
+	std::string hash = "8a173fd3e32c0fa78b90fe42d305f202244e2739";
+	multihash::Bytes expected{
+	    0x11, 0x14, 0x8a, 0x17, 0x3f, 0xd3, 0xe3, 0x2c, 0x0f, 0xa7, 0x8b,
+	    0x90, 0xfe, 0x42, 0xd3, 0x05, 0xf2, 0x02, 0x24, 0x4e, 0x27, 0x39,
+	};
+
+	multihash::Bytes encoded;
+	auto optErr = multihash::encode(hash, 0x11, encoded);
+	ASSERT_FALSE(optErr) << "Expected no error. error: '" << optErr.value() << "'";
+
+	EXPECT_EQ(expected, encoded);
+}
+
 } // namespace

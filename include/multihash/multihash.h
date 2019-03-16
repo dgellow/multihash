@@ -10,10 +10,13 @@
 namespace multihash {
 
 using UInt = unsigned int;
-using Bytes = std::vector<unsigned char>;
 
 using Error = std::string;
 using OptError = std::optional<Error>;
+
+using Bytes = std::vector<unsigned char>;
+using OptBytes = std::optional<Bytes>;
+using ResBytes = std::tuple<OptBytes, OptError>;
 
 const Error errUnknownHashCode{"unknown hash function code"};
 const Error errTooShort{"multihash too short, must be >= 2 bytes"};
@@ -121,12 +124,15 @@ inline std::ostream &operator<<(std::ostream &stream, const Multihash &m) {
 using OptMultihash = std::optional<Multihash>;
 using ResMultihash = std::tuple<OptMultihash, OptError>;
 
-void encode(Bytes &buf, hash code);
-
 ResMultihash decode(Bytes &buf);
 ResMultihash decode(std::string str);
 OptError decode(Bytes &buf, Multihash &m);
 OptError decode(std::string str, Multihash &m);
+
+ResBytes encode(Bytes &digest, UInt code);
+ResBytes encode(std::string digest, UInt code);
+OptError encode(const Bytes &digest, UInt code, Bytes &out);
+OptError encode(std::string digest, UInt code, Bytes &out);
 
 inline bool validate(UInt code) {
 	auto search = hash_by_code.find(code);
@@ -135,8 +141,9 @@ inline bool validate(UInt code) {
 
 } // namespace multihash
 
-
 namespace binary {
+const int MaxVarintLen64 = 10;
+
 using multihash::UInt, multihash::Bytes, multihash::OptError;
 
 std::tuple<UInt, int> binUvarint(const Bytes &buf);

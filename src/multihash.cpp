@@ -1,4 +1,5 @@
 #include "multihash/multihash.h"
+#include <iostream>
 
 namespace binary {
 using multihash::OptError, multihash::errVarIntTooLong, multihash::errVarIntBufferTooShort;
@@ -41,6 +42,23 @@ std::tuple<UInt, OptError> uvarint(Bytes &buf) {
 	}
 	buf = Bytes{buf.begin() + c, buf.end()};
 	return {n, std::nullopt};
+}
+
+// Encodes a uint64 into buffer and returns the number of bytes written.
+// Will throw an expection std::out_of_range if buffer is too small.
+int putUvarint(Bytes &buf, UInt val) {
+	int i{};
+	unsigned char x{};
+
+	while (val >= 0x80) {
+		x = (unsigned char)(val);
+		buf.at(i) = x | 0x80;
+		val >>= 7;
+		i++;
+	}
+	x = (unsigned char)(val);
+	buf.at(i) = x;
+	return i + 1;
 }
 
 // Decodes a string representation of an hexadecimal value into a multihash::Bytes.
@@ -113,6 +131,46 @@ OptError decode(Bytes &buf, Multihash &m) {
 OptError decode(std::string str, Multihash &m) {
 	Bytes buf = binary::decodeHex(str);
 	return decode(buf, m);
+}
+
+ResBytes encode(Bytes &digest, UInt code) {
+	Bytes out;
+	auto err = encode(digest, code, out);
+	return {out, err};
+}
+
+ResBytes encode(std::string digest, UInt code) {
+	Bytes out;
+	Bytes dig = binary::decodeHex(digest);
+	auto err = encode(dig, code, out);
+	return {out, err};
+}
+
+// Encodes a hash digest with the function code.
+// Initialize the out parameter with the resulting multihash in bytes form.
+// May return an error errUnknownHashCode if the function code isn't a known hash function.
+OptError encode(const Bytes &digest, UInt code, Bytes &out) {
+	if (!validate(code)) {
+		return errUnknownHashCode;
+	}
+
+	out = {};
+	Bytes buf{};
+	buf.resize(binary::MaxVarintLen64);                  // allocate space for uvarint
+	auto n = binary::putUvarint(buf, code);              // write function code
+	out.insert(out.end(), buf.begin(), buf.begin() + n); // copy to out parameter
+
+	n = binary::putUvarint(buf, digest.size());          // write digest length
+	out.insert(out.end(), buf.begin(), buf.begin() + n); // copy to out parameter
+
+	out.insert(out.end(), digest.begin(), digest.end()); // write digest to out parameter
+
+	return std::nullopt;
+}
+
+OptError encode(std::string str, UInt code, Bytes &out) {
+	Bytes buf = binary::decodeHex(str);
+	return encode(buf, code, out);
 }
 
 } // namespace multihash
