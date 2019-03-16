@@ -148,6 +148,7 @@ using multihash::UInt, multihash::Bytes, multihash::OptError;
 
 std::tuple<UInt, int> binUvarint(const Bytes &buf);
 std::tuple<UInt, OptError> uvarint(Bytes &buf);
+int putUvarint(Bytes &buf, UInt val);
 Bytes decodeHex(const std::string &hex);
 
 } // namespace binary

@@ -79,6 +79,44 @@ TEST(Binary, DecodeUvarInt) {
 	EXPECT_EQ(0, val);
 }
 
+TEST(Binary, PutUvarint) {
+	multihash::Bytes buf{};
+	multihash::Bytes expect{};
+	multihash::Bytes actual{};
+	int count{};
+
+	// write simple byte
+	buf.clear();
+	buf.resize(binary::MaxVarintLen64);
+	expect = multihash::Bytes{1};
+	count = binary::putUvarint(buf, 0b00000001);
+	actual = multihash::Bytes{buf.begin(), buf.begin() + count};
+	EXPECT_EQ(expect, actual);
+	EXPECT_EQ(1, count);
+
+	// write value that requires two bytes
+	buf.clear();
+	buf.resize(binary::MaxVarintLen64);
+	expect = multihash::Bytes{0b10000000, 0b00000001};
+	count = binary::putUvarint(buf, 128);
+	actual = multihash::Bytes{buf.begin(), buf.begin() + count};
+	EXPECT_EQ(expect, actual);
+	EXPECT_EQ(2, count);
+
+	// write value that requires three bytes
+	buf.clear();
+	buf.resize(binary::MaxVarintLen64);
+	expect = multihash::Bytes{0b10000000, 0b10000000, 0b00000001};
+	count = binary::putUvarint(buf, 16384);
+	actual = multihash::Bytes{buf.begin(), buf.begin() + count};
+	EXPECT_EQ(expect, actual);
+	EXPECT_EQ(3, count);
+
+	// empty buffer
+	buf = {};
+	ASSERT_THROW(binary::putUvarint(buf, 123), std::out_of_range);
+}
+
 TEST(Binary, DecodeHexString) {
 	std::string hex{"11148a173fd3e32c0fa78b90fe42d305f202244e2739"};
 	multihash::Bytes expected{
