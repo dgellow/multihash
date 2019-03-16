@@ -18,7 +18,7 @@ const Error errUnknownHashCode{"unknown hash function code"};
 const Error errTooShort{"multihash too short, must be >= 2 bytes"};
 const Error errTooLong{"multihash too long, must be < 129 bytes"};
 const Error errVarIntBufferTooShort{"uvarint: buffer too small"};
-const Error errVarintTooLong{"uvarint: varint too big (max 64bit)"};
+const Error errVarIntTooLong{"uvarint: varint too big (max 64bit)"};
 const Error errInconsistantLength{"multihash length inconsistent"};
 const Error errInvalidInput{"invalid input"};
 
@@ -131,17 +131,16 @@ ResMultihash decode(std::string str);
 OptError decode(Bytes &buf, Multihash &m);
 OptError decode(std::string str, Multihash &m);
 
-bool validate(u_int64_t code) {
-	auto search = hash_code.find(code);
-	return search == hash_code.end();
+inline bool validate(UInt code) {
+	auto search = hash_by_code.find(code);
+	return search == hash_by_code.end();
 }
 
 } // namespace multihash
 
 
 namespace binary {
-using multihash::OptError, multihash::errVarintTooLong, multihash::errVarIntBufferTooShort;
-using multihash::UInt, multihash::Bytes;
+using multihash::UInt, multihash::Bytes, multihash::OptError;
 
 std::tuple<UInt, int> binUvarint(const Bytes &buf);
 std::tuple<UInt, OptError> uvarint(Bytes &buf);

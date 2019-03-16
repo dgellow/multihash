@@ -2,7 +2,7 @@
 #include <tuple>
 
 namespace binary {
-using multihash::OptError, multihash::errVarintTooLong, multihash::errVarIntBufferTooShort;
+using multihash::OptError, multihash::errVarIntTooLong, multihash::errVarIntBufferTooShort;
 using multihash::UInt, multihash::Bytes;
 
 // Decodes unsigned variable integer from buffer.
@@ -38,7 +38,7 @@ std::tuple<UInt, OptError> uvarint(Bytes &buf) {
 		return {0, errVarIntBufferTooShort};
 	}
 	if (c < 0) {
-		return {0, errVarintTooLong};
+		return {0, errVarIntTooLong};
 	}
 	buf = Bytes{buf.begin() + c, buf.end()};
 	return {n, std::nullopt};
