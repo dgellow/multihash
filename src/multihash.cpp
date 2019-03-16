@@ -1,7 +1,9 @@
 #include "multihash/multihash.h"
 #include <tuple>
 
-namespace multihash {
+namespace binary {
+using multihash::OptError, multihash::errVarintTooLong, multihash::errVarIntBufferTooShort;
+using multihash::UInt, multihash::Bytes;
 
 // Decodes unsigned variable integer from buffer.
 // Returns the value and the count of bytes read.
@@ -9,15 +11,15 @@ namespace multihash {
 // Count of bytes gives indication of errors:
 //    count == 0: buffer was too small
 //    count < 0: value larger than 64 bits, thus overflow,
-//                -count is the number of bytes read.
+//               -count is the number of bytes read.
 std::tuple<UInt, int> binUvarint(const Bytes &buf) {
-	UInt x;
-	UInt s;
+	UInt x{};
+	UInt s{};
 
 	for (int i = 0; i < buf.size(); i++) {
-		short b = buf.at(i);
+		unsigned char b = buf.at(i);
 		if (b < 0x80) {
-			if ((i > 9 || i == 9) && (b > 1)) {
+			if (i >= 9 && b > 1) {
 				return {0, -(i + 1)}; // overflow
 			}
 			return {x | UInt(b) << s, i + 1};
@@ -42,6 +44,21 @@ std::tuple<UInt, OptError> uvarint(Bytes &buf) {
 	return {n, std::nullopt};
 }
 
+Bytes decodeHex(const std::string &hex) {
+	Bytes bytes;
+	for (UInt i = 0; i < hex.size(); i += 2) {
+		std::string byteString = hex.substr(i, 2);
+		unsigned char b = std::strtol(byteString.c_str(), NULL, 16);
+		bytes.push_back(b);
+	}
+
+	return bytes;
+}
+
+} // namespace binary
+
+namespace multihash {
+
 // Decodes a buffer and constructs a Multihash.
 // May return same errors as decode(Bytes &buf, Multihash &m).
 ResMultihash decode(Bytes &buf) {
@@ -53,7 +70,7 @@ ResMultihash decode(Bytes &buf) {
 // Constructs a Multihash from a string.
 // May return same errors as decode(Bytes &buf, Multihash &m).
 ResMultihash decode(std::string str) {
-	Bytes buf{str.begin(), str.end()};
+	Bytes buf = binary::decodeHex(str);
 	return decode(buf);
 }
 
@@ -68,12 +85,12 @@ OptError decode(Bytes &buf, Multihash &m) {
 	UInt length{};
 	OptError err{};
 
-	std::tie(code, err) = uvarint(buf);
+	std::tie(code, err) = binary::uvarint(buf);
 	if (err) {
 		return err;
 	}
 
-	std::tie(length, err) = uvarint(buf);
+	std::tie(length, err) = binary::uvarint(buf);
 	if (err) {
 		return err;
 	}
@@ -82,19 +99,19 @@ OptError decode(Bytes &buf, Multihash &m) {
 		return errInconsistantLength;
 	}
 
-	auto hashSearch = hash_code.find(code);
-	if (hashSearch == hash_code.end()) {
+	auto hashSearch = hash_by_code.find(code);
+	if (hashSearch == hash_by_code.end()) {
 		return errUnknownHashCode;
 	}
 
-	m = {hashSearch->second, length, buf};
+	m = Multihash{hashSearch->second, length, buf};
 	return std::nullopt;
 }
 
 // Initialize the multihash parameter from a string.
 // May return same errors as decode(Bytes &buf, Multihash &m).
 OptError decode(std::string str, Multihash &m) {
-	Bytes buf{str.begin(), str.end()};
+	Bytes buf = binary::decodeHex(str);
 	return decode(buf, m);
 }
 

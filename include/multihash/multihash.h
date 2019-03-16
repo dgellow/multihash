@@ -9,7 +9,7 @@
 namespace multihash {
 
 using UInt = unsigned int;
-using Bytes = std::vector<char>;
+using Bytes = std::vector<unsigned char>;
 
 using Error = std::string;
 using OptError = std::optional<Error>;
@@ -137,3 +137,14 @@ bool validate(u_int64_t code) {
 }
 
 } // namespace multihash
+
+
+namespace binary {
+using multihash::OptError, multihash::errVarintTooLong, multihash::errVarIntBufferTooShort;
+using multihash::UInt, multihash::Bytes;
+
+std::tuple<UInt, int> binUvarint(const Bytes &buf);
+std::tuple<UInt, OptError> uvarint(Bytes &buf);
+Bytes decodeHex(const std::string &hex);
+
+} // namespace binary
