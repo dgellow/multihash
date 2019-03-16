@@ -89,4 +89,57 @@ TEST(Binary, DecodeHexString) {
 	EXPECT_EQ(expected, decoded);
 }
 
+TEST(Decode, FromString) {
+	std::string hash = "11148a173fd3e32c0fa78b90fe42d305f202244e2739";
+
+	std::string digest = "8a173fd3e32c0fa78b90fe42d305f202244e2739";
+	auto expectedDigest = multihash::Bytes{digest.begin(), digest.end()};
+
+	auto [optM, optErr] = multihash::decode(hash);
+	ASSERT_FALSE(optErr) << "Expected no error. error: '" << optErr.value() << "'";
+	EXPECT_TRUE(optM) << "A Multimatch instance should be returned";
+
+	auto m = optM.value();
+	EXPECT_EQ(0x11, m.getCode());
+	EXPECT_EQ(multihash::hash::SHA1, m.getHash());
+	EXPECT_EQ(20, m.size());
+	EXPECT_EQ(expectedDigest, m.getDigest());
+}
+
+TEST(Decode, FromStringUsingOutParam) {
+	std::string hash = "11148a173fd3e32c0fa78b90fe42d305f202244e2739";
+
+	std::string digest = "8a173fd3e32c0fa78b90fe42d305f202244e2739";
+	auto expectedDigest = multihash::Bytes{digest.begin(), digest.end()};
+
+	multihash::Multihash m;
+	auto optErr = multihash::decode(hash, m);
+	ASSERT_FALSE(optErr) << "Expected no error. error: '" << optErr.value() << "'";
+
+	EXPECT_EQ(0x11, m.getCode());
+	EXPECT_EQ(multihash::hash::SHA1, m.getHash());
+	EXPECT_EQ(20, m.size());
+	EXPECT_EQ(expectedDigest, m.getDigest());
+}
+
+TEST(Decode, InputTooShort) {
+	auto [_, optErr] = multihash::decode("");
+	ASSERT_TRUE(optErr) << "Expected an error. expected: '" << multihash::errTooShort << "'";
+	ASSERT_EQ(multihash::errTooShort, optErr.value());
+
+	std::tie(_, optErr) = multihash::decode("c");
+	ASSERT_TRUE(optErr) << "Expected an error. expected: '" << multihash::errTooShort << "'";
+	ASSERT_EQ(multihash::errTooShort, optErr.value());
+}
+
+TEST(Decode, MismatchLengthAndDigestLength) {
+	auto [_, optErr] = multihash::decode("02mydigest");
+	ASSERT_TRUE(optErr) << "Expected an error. expected: '" << multihash::errInconsistantLength << "'";
+	ASSERT_EQ(multihash::errInconsistantLength, optErr.value());
+
+	std::tie(_, optErr) = multihash::decode("0999mydigest");
+	ASSERT_TRUE(optErr) << "Expected an error. expected: '" << multihash::errInconsistantLength << "'";
+	ASSERT_EQ(multihash::errInconsistantLength, optErr.value());
+}
+
 } // namespace

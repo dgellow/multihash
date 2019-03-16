@@ -1,5 +1,4 @@
 #include "multihash/multihash.h"
-#include <tuple>
 
 namespace binary {
 using multihash::OptError, multihash::errVarIntTooLong, multihash::errVarIntBufferTooShort;

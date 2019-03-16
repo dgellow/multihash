@@ -24,7 +24,6 @@ const Error errInvalidInput{"invalid input"};
 
 enum class hash {
 	ID,
-
 	SHA1,
 	SHA2_256,
 	SHA2_512,
@@ -33,28 +32,22 @@ enum class hash {
 	SHA3_384,
 	SHA3_512,
 	SHA3,
-
 	KECCAK_224,
 	KECCAK_256,
 	KECCAK_384,
 	KECCAK_512,
-
 	SHAKE_128,
 	SHAKE_256,
-
 	BLAKE2B_MIN,
 	BLAKE2B_MAX,
 	BLAKE2S_MIN,
 	BLAKE2S_MAX,
-
 	DBL_SHA2_256,
-
 	MURMUR3,
-
 	X11,
 };
 
-const std::map<u_int64_t, hash> hash_code = {
+const std::map<UInt, hash> hash_by_code = {
     {0x00, hash::ID},
     {0x11, hash::SHA1},
     {0x12, hash::SHA2_256},
@@ -64,24 +57,18 @@ const std::map<u_int64_t, hash> hash_code = {
     {0x15, hash::SHA3_384},
     {0x14, hash::SHA3_512},
     {0x14, hash::SHA3},
-
     {0x1A, hash::KECCAK_224},
     {0x1B, hash::KECCAK_256},
     {0x1C, hash::KECCAK_384},
     {0x1D, hash::KECCAK_512},
-
     {0x18, hash::SHAKE_128},
     {0x19, hash::SHAKE_256},
-
     {0xb201, hash::BLAKE2B_MIN},
     {0xb240, hash::BLAKE2B_MAX},
     {0xb241, hash::BLAKE2S_MIN},
     {0xb260, hash::BLAKE2S_MAX},
-
     {0x56, hash::DBL_SHA2_256},
-
     {0x22, hash::MURMUR3},
-
     {0x1100, hash::X11},
 };
 
@@ -105,18 +92,22 @@ const std::map<std::string, hash> hash_name = {
     {"x11", hash::X11},
 };
 
-
 class Multihash {
 public:
-	Multihash() {}
-	Multihash(hash code, size_t length, Bytes digest) : code(code), length(length), digest(digest) {}
+	Multihash() : hash(hash::ID), code(0), length(0), digest({}) {}
+	Multihash(UInt code, size_t length, Bytes digest) : code(code), length(length), digest(digest) {
+		this->hash = hash_by_code.at(code);
+	}
+	Multihash(hash hash, size_t length, Bytes digest) : length(length), digest(digest) {}
 
-	const UInt &size() { return length; }
-	const hash &getCode() { return code; }
-	const Bytes &getDigest() { return digest; }
+	UInt size() const { return length; }
+	UInt getCode() const { return code; }
+	hash getHash() const { return hash; }
+	Bytes getDigest() const { return digest; }
 
 private:
-	hash code;
+	hash hash;
+	UInt code;
 	UInt length;
 	Bytes digest;
 };
