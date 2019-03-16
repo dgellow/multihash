@@ -80,7 +80,13 @@ TEST(Binary, DecodeUvarInt) {
 }
 
 TEST(Binary, DecodeHexString) {
-	FAIL() << "Not implemented yet";
+	std::string hex{"11148a173fd3e32c0fa78b90fe42d305f202244e2739"};
+	multihash::Bytes expected{
+	    0x11, 0x14, 0x8a, 0x17, 0x3f, 0xd3, 0xe3, 0x2c, 0x0f, 0xa7, 0x8b,
+	    0x90, 0xfe, 0x42, 0xd3, 0x05, 0xf2, 0x02, 0x24, 0x4e, 0x27, 0x39,
+	};
+	auto decoded = binary::decodeHex(hex);
+	EXPECT_EQ(expected, decoded);
 }
 
 } // namespace

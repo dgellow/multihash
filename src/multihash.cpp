@@ -44,6 +44,8 @@ std::tuple<UInt, OptError> uvarint(Bytes &buf) {
 	return {n, std::nullopt};
 }
 
+// Decodes a string representation of an hexadecimal value into a multihash::Bytes.
+// String length should be even.
 Bytes decodeHex(const std::string &hex) {
 	Bytes bytes;
 	for (UInt i = 0; i < hex.size(); i += 2) {
