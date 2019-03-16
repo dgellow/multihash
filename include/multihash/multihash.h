@@ -99,7 +99,6 @@ public:
 	Multihash(UInt code, size_t length, Bytes digest) : code(code), length(length), digest(digest) {
 		this->hash = hash_by_code.at(code);
 	}
-	Multihash(hash hash, size_t length, Bytes digest) : length(length), digest(digest) {}
 
 	UInt size() const { return length; }
 	UInt getCode() const { return code; }

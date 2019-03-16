@@ -105,7 +105,7 @@ OptError decode(Bytes &buf, Multihash &m) {
 		return errUnknownHashCode;
 	}
 
-	m = Multihash{hashSearch->second, length, buf};
+	m = Multihash{code, length, buf};
 	return std::nullopt;
 }
 
