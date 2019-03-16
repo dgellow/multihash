@@ -10,7 +10,7 @@ $ cd multihash
 $ mkdir build
 $ cd build
 $ cmake ..
-$ make && make test && make install
+$ make && make test ARGS="-V" && make install
 ```
 
 ## Usage
